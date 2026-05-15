@@ -1,0 +1,131 @@
+/* =========================================================
+   Nails by Jano — Design Tokens
+   Four Spa aesthetic: blush pink + hot crimson
+   ========================================================= */
+
+/* ---------- Webfonts (Gilroy — kept for UI body text) ---------- */
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-Light.ttf") format("truetype"); font-weight:300; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-Regular.ttf") format("truetype"); font-weight:400; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-Medium.ttf") format("truetype"); font-weight:500; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-SemiBold.ttf") format("truetype"); font-weight:600; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-Bold.ttf") format("truetype"); font-weight:700; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-ExtraBold.ttf") format("truetype"); font-weight:800; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-Black.ttf") format("truetype"); font-weight:900; font-style:normal; font-display:swap; }
+@font-face { font-family:"Gilroy"; src:url("fonts/Gilroy-RegularItalic.ttf") format("truetype"); font-weight:400; font-style:italic; font-display:swap; }
+@font-face { font-family:"Bright"; src:url("fonts/BrightDemo-axVxE.otf") format("opentype"); font-weight:400; font-style:normal; font-display:swap; }
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Core palette — blush + crimson */
+  --bg:           #FFF0F3;
+  --bg-soft:      #FFE5EB;
+  --surface:      #FFFFFF;
+  --brand:        #E8174A;
+  --brand-deep:   #C0103C;
+  --brand-hover:  #D01240;
+  --brand-tint:   #FFD6E0;
+  --brand-pale:   #FFF0F3;
+
+  /* All text is brand-colored in this aesthetic */
+  --fg:           #E8174A;
+  --fg-muted:     rgba(232, 23, 74, 0.65);
+  --fg-subtle:    rgba(232, 23, 74, 0.4);
+  --fg-on-brand:  #FFFFFF;
+
+  /* Hairlines — thin pink */
+  --hairline:        rgba(232, 23, 74, 0.18);
+  --hairline-strong: rgba(232, 23, 74, 0.32);
+
+  /* Type families */
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-sans:    "Gilroy", "Inter", -apple-system, sans-serif;
+  --font-script:  "Bright", cursive;
+
+  /* Type scale */
+  --t-jumbo:   clamp(80px, 13vw, 180px);
+  --t-hero:    clamp(56px, 9vw, 120px);
+  --t-display: clamp(40px, 5.5vw, 72px);
+  --t-h1:      clamp(32px, 4vw, 52px);
+  --t-h2:      clamp(24px, 3vw, 38px);
+  --t-h3:      22px;
+  --t-body:    15px;
+  --t-small:   13px;
+  --t-eyebrow: 10px;
+
+  /* Spacing */
+  --space-1: 4px;  --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px; --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px; --space-20: 80px; --space-24: 96px;
+
+  /* Radii */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   16px;
+  --r-xl:   24px;
+  --r-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(232, 23, 74, 0.08);
+  --shadow-md: 0 8px 24px rgba(232, 23, 74, 0.12);
+  --shadow-lg: 0 24px 64px rgba(232, 23, 74, 0.16);
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.6, 0, 0.4, 1);
+  --dur-fast: 140ms;
+  --dur-med:  260ms;
+  --dur-slow: 480ms;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); }
+::selection { background: var(--brand-tint); color: var(--brand-deep); }
+
+/* ---------- nbj wrapper ---------- */
+.nbj, .nbj * { box-sizing: border-box; }
+.nbj {
+  font-family: var(--font-sans);
+  color: var(--fg);
+  background: var(--bg);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Cormorant display headlines */
+.nbj .display-serif {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--brand);
+  line-height: 0.95;
+}
+
+/* Eyebrow / labels */
+.nbj .eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--t-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+/* Links */
+.nbj a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.nbj a:hover { color: var(--brand-deep); }
+
+/* Hairline divider */
+.nbj hr, .nbj .divider {
+  border: none;
+  border-top: 1px solid var(--hairline);
+  margin: 0;
+}
