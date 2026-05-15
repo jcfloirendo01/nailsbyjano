@@ -158,11 +158,40 @@ const App = () => {
     );
   }
 
+  const isMobile = typeof useWindowWidth === "function" ? useWindowWidth() <= 768 : false;
+  const showFab  = isMobile && route !== 'book' && route !== 'owner';
+
   return (
     <div className="nbj">
       <TopNav active={route} onNavigate={r => navigate(r)} onBook={() => goBook()} />
       {body}
       {showFooter && <Footer onBook={() => goBook()} onNavigate={r => navigate(r)} />}
+
+      {showFab && (
+        <button
+          onClick={() => goBook()}
+          style={{
+            position: "fixed",
+            bottom: 24,
+            right: 20,
+            zIndex: 1000,
+            background: "var(--brand)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 0,
+            padding: "14px 22px",
+            fontFamily: "var(--font-sans)",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            boxShadow: "0 6px 24px rgba(232,23,74,0.35)",
+          }}
+        >
+          Book Now
+        </button>
+      )}
     </div>
   );
 };
