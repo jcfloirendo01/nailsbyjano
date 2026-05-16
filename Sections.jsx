@@ -8,15 +8,36 @@ const { useState, useEffect } = React;
    Desktop: BOOK NOW | SERVICES  ——  Nails by Jano  ——  instagram | INFO
    Mobile:  ☰  ——  Nails by Jano  ——  instagram
    =================================================================== */
+const NAV_ITEMS = [
+  { label: "Book Now",  key: "book" },
+  { label: "Services",  key: "services" },
+  { label: "Gallery",   key: "gallery" },
+  { label: "About",     key: "about" },
+];
+
 const TopNav = ({ active, onNavigate, onBook }) => {
   useLucide();
   const w = useWindowWidth();
   const isMobile = w <= 768;
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const close = () => setMenuOpen(false);
+
+  const handleNav = (key) => {
+    if (key === "book") { onBook(); } else { onNavigate(key); }
+    close();
+  };
+
+  /* Lock body scroll when menu open */
+  useEffect(() => {
+    if (!isMobile) return;
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen, isMobile]);
+
   const wordmark = (
     <button
-      onClick={() => { onNavigate("home"); setMenuOpen(false); }}
+      onClick={() => { onNavigate("home"); close(); }}
       style={{
         background: "none", border: 0, cursor: "pointer", padding: 0,
         position: "absolute", left: "50%", transform: "translateX(-50%)",
@@ -28,8 +49,9 @@ const TopNav = ({ active, onNavigate, onBook }) => {
         fontWeight: 600,
         letterSpacing: "0.12em",
         textTransform: "uppercase",
-        color: "var(--brand)",
+        color: menuOpen ? "#fff" : "var(--brand)",
         whiteSpace: "nowrap",
+        transition: "color 300ms ease",
       }}>
         Nails by Jano
       </span>
@@ -37,82 +59,108 @@ const TopNav = ({ active, onNavigate, onBook }) => {
   );
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--bg)", borderBottom: "1px solid var(--hairline)" }}>
-      <div style={{
-        maxWidth: 1200, margin: "0 auto",
-        padding: isMobile ? "0 20px" : "0 32px",
-        height: 52,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "relative",
+    <>
+      <header style={{
+        position: "sticky", top: 0, zIndex: 200,
+        background: menuOpen ? "transparent" : "var(--bg)",
+        borderBottom: menuOpen ? "none" : "1px solid var(--hairline)",
+        transition: "background 300ms ease, border-color 300ms ease",
       }}>
-        {/* Left */}
-        {isMobile ? (
-          <button
-            onClick={() => setMenuOpen(o => !o)}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--brand)", display: "flex", padding: 0 }}
-            aria-label="Menu"
-          >
-            <Icon name={menuOpen ? "x" : "menu"} size={20} stroke={1.5} />
-          </button>
-        ) : (
-          <nav style={{ display: "flex", gap: 28, alignItems: "center" }}>
-            <button onClick={onBook} style={navBtn(active === "book")}>BOOK NOW</button>
-            <button onClick={() => onNavigate("services")} style={navBtn(active === "services")}>SERVICES</button>
-          </nav>
-        )}
-
-        {wordmark}
-
-        {/* Right */}
-        <div style={{ display: "flex", gap: isMobile ? 16 : 20, alignItems: "center" }}>
-          <a href="https://www.instagram.com/nailsbyjano.est2024/" target="_blank" rel="noopener noreferrer" style={{ display: "flex", lineHeight: 1 }}>
-            <InstagramIcon size={18} color="#E8174A" />
-          </a>
-          {!isMobile && (
-            <button onClick={() => onNavigate("about")} style={navBtn(active === "about")}>INFO</button>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile slide-down menu */}
-      {isMobile && menuOpen && (
         <div style={{
-          background: "var(--bg)",
-          borderBottom: "1px solid var(--hairline)",
-          padding: "8px 20px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 0,
+          maxWidth: 1200, margin: "0 auto",
+          padding: isMobile ? "0 20px" : "0 32px",
+          height: 52,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          position: "relative",
         }}>
-          {[
-            { label: "Book now", action: () => { onBook(); setMenuOpen(false); } },
-            { label: "Services", action: () => { onNavigate("services"); setMenuOpen(false); } },
-            { label: "Gallery", action: () => { onNavigate("gallery"); setMenuOpen(false); } },
-            { label: "About", action: () => { onNavigate("about"); setMenuOpen(false); } },
-          ].map(item => (
+          {/* Left */}
+          {isMobile ? (
             <button
-              key={item.label}
-              onClick={item.action}
-              style={{
-                background: "none", border: "none",
-                borderBottom: "1px solid var(--hairline)",
-                fontFamily: "var(--font-sans)",
-                fontSize: 11, fontWeight: 700,
-                letterSpacing: "0.18em", textTransform: "uppercase",
-                color: "var(--brand)",
-                cursor: "pointer",
-                padding: "14px 0",
-                textAlign: "left",
-              }}
+              onClick={() => setMenuOpen(o => !o)}
+              style={{ background: "none", border: "none", cursor: "pointer", color: menuOpen ? "#fff" : "var(--brand)", display: "flex", padding: 0, zIndex: 201, transition: "color 300ms ease" }}
+              aria-label="Menu"
             >
-              {item.label}
+              <Icon name={menuOpen ? "x" : "menu"} size={20} stroke={1.5} />
             </button>
-          ))}
+          ) : (
+            <nav style={{ display: "flex", gap: 28, alignItems: "center" }}>
+              <button onClick={onBook} style={navBtn(active === "book")}>BOOK NOW</button>
+              <button onClick={() => onNavigate("services")} style={navBtn(active === "services")}>SERVICES</button>
+            </nav>
+          )}
+
+          {wordmark}
+
+          {/* Right */}
+          <div style={{ display: "flex", gap: isMobile ? 16 : 20, alignItems: "center", zIndex: 201 }}>
+            <a href="https://www.instagram.com/nailsbyjano.est2024/" target="_blank" rel="noopener noreferrer" style={{ display: "flex", lineHeight: 1 }}>
+              <InstagramIcon size={18} color={menuOpen ? "#fff" : "#E8174A"} style={{ transition: "color 300ms ease" }} />
+            </a>
+            {!isMobile && (
+              <button onClick={() => onNavigate("about")} style={navBtn(active === "about")}>INFO</button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Full-screen mobile overlay */}
+      {isMobile && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 199,
+          background: "linear-gradient(160deg, #E8174A 0%, #C0103C 60%, #9a0c2e 100%)",
+          display: "flex", flexDirection: "column",
+          justifyContent: "center",
+          padding: "80px 40px 60px",
+          opacity: menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? "auto" : "none",
+          transition: "opacity 350ms cubic-bezier(0.4,0,0.2,1)",
+        }}>
+          {/* Nav items */}
+          <nav style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {NAV_ITEMS.map((item, i) => (
+              <button
+                key={item.key}
+                onClick={() => handleNav(item.key)}
+                style={{
+                  background: "none", border: "none", borderBottom: "1px solid rgba(255,255,255,0.15)",
+                  fontFamily: "var(--font-display)",
+                  fontSize: "clamp(36px,10vw,56px)",
+                  fontWeight: 400,
+                  letterSpacing: "0.04em",
+                  textTransform: "uppercase",
+                  color: "#fff",
+                  cursor: "pointer",
+                  padding: "18px 0",
+                  textAlign: "left",
+                  opacity: menuOpen ? 1 : 0,
+                  transform: menuOpen ? "translateY(0)" : "translateY(28px)",
+                  transition: `opacity 420ms ease ${i * 70 + 120}ms, transform 420ms cubic-bezier(0.22,1,0.36,1) ${i * 70 + 120}ms`,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.paddingLeft = "12px"; }}
+                onMouseLeave={e => { e.currentTarget.style.paddingLeft = "0px"; }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Bottom wordmark */}
+          <div style={{
+            position: "absolute", bottom: 36, left: 40, right: 40,
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            opacity: menuOpen ? 1 : 0,
+            transition: `opacity 420ms ease 420ms`,
+          }}>
+            <span style={{ fontFamily: "var(--font-sans)", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.5)" }}>
+              Nails by Jano · Tondo, Manila
+            </span>
+            <a href="https://www.instagram.com/nailsbyjano.est2024/" target="_blank" rel="noopener noreferrer" style={{ display: "flex" }}>
+              <InstagramIcon size={16} color="rgba(255,255,255,0.5)" />
+            </a>
+          </div>
         </div>
       )}
-    </header>
+    </>
   );
 };
 
