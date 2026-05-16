@@ -803,9 +803,8 @@ const GiftVoucherTab = () => {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [senderName,     setSenderName]     = useState("");
   const [message,        setMessage]        = useState("");
+  const [refNumber,      setRefNumber]      = useState("");
   const [submitting,     setSubmitting]     = useState(false);
-  const [voucherCode,    setVoucherCode]    = useState("");
-  const [sendError,      setSendError]      = useState(null);
 
   const w        = useWindowWidth();
   const isMobile = w <= 768;
@@ -814,69 +813,107 @@ const GiftVoucherTab = () => {
     ? (customAmount ? `₱${customAmount}` : "₱—")
     : amount;
 
-  const canSend = recipientName && recipientEmail && senderName &&
-    (amount !== "custom" || customAmount);
+  const canProceed = !!recipientName.trim() && !!recipientEmail.trim() && !!senderName.trim() &&
+    (amount !== "custom" || !!customAmount);
 
-  const handleSend = async () => {
+  const handleSubmitPending = async () => {
     setSubmitting(true);
-    setSendError(null);
-    const code = generateVoucherCode();
     try {
       await fetch(SHEETS_API_URL, {
         method: "POST",
         mode:   "no-cors",
         body:   JSON.stringify({
-          type:             "voucher",
+          type:             "pending_voucher",
           recipient_name:   recipientName,
           recipient_email:  recipientEmail,
           sender_name:      senderName,
           voucher_amount:   displayAmount,
-          voucher_code:     code,
           personal_message: message || "—",
+          payment_ref:      refNumber,
         }),
       });
     } catch (_) {}
-    setVoucherCode(code);
-    setStep(1);
+    setStep(2);
     setSubmitting(false);
   };
 
   const reset = () => {
     setStep(0); setAmount("₱500"); setCustomAmount(""); setRecipientName("");
-    setRecipientEmail(""); setSenderName(""); setMessage(""); setVoucherCode("");
+    setRecipientEmail(""); setSenderName(""); setMessage(""); setRefNumber("");
   };
 
-  if (step === 1) return (
+  /* ── Step 2: pending confirmation ── */
+  if (step === 2) return (
     <div style={{ maxWidth:480, margin:"0 auto", textAlign:"center", padding:"8px 0 24px" }}>
-      <VoucherCard amount={displayAmount} code={voucherCode} />
-      <div style={{ marginTop:28 }}>
-        <h2 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(28px,5vw,44px)", fontWeight:400, color:"var(--brand)", letterSpacing:"0.04em", textTransform:"uppercase", margin:"0 0 8px" }}>
-          Voucher Sent!
-        </h2>
-        <p style={{ fontFamily:"var(--font-sans)", fontSize:13, color:"var(--fg-muted)", margin:"0 0 20px" }}>
-          A gift voucher has been sent to <strong>{recipientName}</strong>.
-        </p>
-        <div style={{ border:"1px solid var(--brand)", padding:"14px 28px", display:"inline-block", marginBottom:20 }}>
-          <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:6 }}>Voucher Code</div>
-          <div style={{ fontFamily:"var(--font-display)", fontSize:30, fontWeight:400, color:"var(--brand)", letterSpacing:"0.14em" }}>{voucherCode}</div>
-        </div>
-        {sendError && (
-          <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"#c0392b", fontStyle:"italic", margin:"0 0 16px" }}>⚠ {sendError}</p>
-        )}
-        <p style={{ fontFamily:"var(--font-sans)", fontSize:11, fontStyle:"italic", color:"var(--fg-muted)", margin:"0 0 24px" }}>
-          Screenshot this code. The recipient presents it when booking their appointment.
-        </p>
-        <Button variant="primary" onClick={reset}>Send another voucher</Button>
-      </div>
+      <div style={{ width:64, height:64, borderRadius:"50%", background:"#fdf0f4", border:"2px solid var(--brand)", display:"flex", alignItems:"center", justifyContent:"center", margin:"0 auto 20px", fontSize:28 }}>✓</div>
+      <h2 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(24px,5vw,40px)", fontWeight:400, color:"var(--brand)", letterSpacing:"0.04em", textTransform:"uppercase", margin:"0 0 12px" }}>
+        Payment Submitted
+      </h2>
+      <p style={{ fontFamily:"var(--font-sans)", fontSize:13, color:"var(--fg-muted)", margin:"0 0 8px", lineHeight:1.7 }}>
+        We received your payment details. The owner will verify your GCash payment and send the voucher to <strong>{recipientName}</strong> once confirmed.
+      </p>
+      <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"var(--fg-muted)", fontStyle:"italic", margin:"0 0 28px" }}>
+        Reference no: {refNumber}
+      </p>
+      <Button variant="primary" onClick={reset}>Send another voucher</Button>
     </div>
   );
 
+  /* ── Step 1: payment screen ── */
+  if (step === 1) return (
+    <div style={{ maxWidth:480, margin:"0 auto", padding:"8px 0 24px" }}>
+      <button onClick={() => setStep(0)} style={{ fontFamily:"var(--font-sans)", fontSize:10, fontWeight:700, letterSpacing:"0.14em", textTransform:"uppercase", color:"var(--fg-muted)", background:"none", border:"none", cursor:"pointer", padding:0, marginBottom:24 }}>
+        ‹ Back
+      </button>
+      <Eyebrow style={{ marginBottom:8 }}>Step 2 of 2 — Payment</Eyebrow>
+      <h2 style={{ fontFamily:"var(--font-display)", fontSize:"clamp(22px,4vw,34px)", fontWeight:400, color:"var(--brand)", letterSpacing:"0.04em", textTransform:"uppercase", margin:"0 0 24px" }}>
+        Complete Payment
+      </h2>
+
+      {/* Amount due */}
+      <div style={{ background:"#fdf0f4", border:"1px solid var(--brand)", padding:"16px 20px", marginBottom:24, textAlign:"center" }}>
+        <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:6 }}>Amount to Pay</div>
+        <div style={{ fontFamily:"var(--font-display)", fontSize:44, fontWeight:400, color:"var(--brand)", letterSpacing:"0.04em", lineHeight:1 }}>{displayAmount}</div>
+      </div>
+
+      {/* QR Code */}
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:12 }}>Scan to Pay via GCash</div>
+        <img
+          src="assets/qr/gcash-qr.jpg"
+          alt="GCash QR Code"
+          style={{ width:"100%", maxWidth:220, display:"block", margin:"0 auto", border:"1px solid var(--hairline)" }}
+        />
+        <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"var(--fg-muted)", margin:"10px 0 0", fontStyle:"italic" }}>
+          Open GCash → Scan QR → Pay {displayAmount}
+        </p>
+      </div>
+
+      {/* Reference number */}
+      <div style={{ marginBottom:28 }}>
+        <Field label="GCash Reference Number *">
+          <Input
+            value={refNumber}
+            onChange={e => setRefNumber(e.target.value)}
+          />
+        </Field>
+        <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"var(--fg-muted)", margin:"6px 0 0", fontStyle:"italic" }}>
+          Found in GCash → Transaction History after paying.
+        </p>
+      </div>
+
+      <Button variant="filled" size="lg" onClick={handleSubmitPending} disabled={!refNumber.trim() || submitting}>
+        {submitting ? "Submitting…" : "Submit for Verification"}
+      </Button>
+    </div>
+  );
+
+  /* ── Step 0: form ── */
   return (
     <div style={{ maxWidth:560, margin:"0 auto" }}>
       <VoucherCard amount={displayAmount} />
 
       <div style={{ marginTop:28 }}>
-        {/* Amount selector */}
         <Eyebrow style={{ marginBottom:12 }}>Select amount</Eyebrow>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:10 }}>
           {VOUCHER_AMOUNTS.map(a => {
@@ -909,23 +946,22 @@ const GiftVoucherTab = () => {
         {amount === "custom" && (
           <div style={{ marginBottom:24 }}>
             <Field label="Amount (₱)">
-              <Input value={customAmount} onChange={e => setCustomAmount(e.target.value.replace(/\D/g,''))} placeholder="e.g. 750" />
+              <Input value={customAmount} onChange={e => setCustomAmount(e.target.value.replace(/\D/g,''))} />
             </Field>
           </div>
         )}
 
-        {/* Recipient details */}
         <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:14, marginBottom:14 }}>
           <Field label="Recipient name *">
-            <Input value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="Who is this for?" />
+            <Input value={recipientName} onChange={e => setRecipientName(e.target.value)} />
           </Field>
           <Field label="Recipient email *">
-            <Input type="email" value={recipientEmail} onChange={e => setRecipientEmail(e.target.value)} placeholder="Where to send it" />
+            <Input type="email" value={recipientEmail} onChange={e => setRecipientEmail(e.target.value)} />
           </Field>
         </div>
         <div style={{ marginBottom:14 }}>
           <Field label="From *">
-            <Input value={senderName} onChange={e => setSenderName(e.target.value)} placeholder="Your name" />
+            <Input value={senderName} onChange={e => setSenderName(e.target.value)} />
           </Field>
         </div>
         <div style={{ marginBottom:24 }}>
@@ -934,14 +970,13 @@ const GiftVoucherTab = () => {
               rows={3}
               value={message}
               onChange={e => setMessage(e.target.value)}
-              placeholder="Add a personal note (optional)"
               style={{ fontFamily:"var(--font-sans)", fontSize:13, padding:"10px 12px", border:"1px solid var(--brand)", borderRadius:0, background:"#fff", color:"var(--brand)", outline:"none", resize:"vertical", width:"100%" }}
             />
           </Field>
         </div>
 
-        <Button variant="filled" size="lg" onClick={handleSend} disabled={!canSend || submitting}>
-          {submitting ? "Sending…" : "Send gift voucher"}
+        <Button variant="filled" size="lg" onClick={() => setStep(1)} disabled={!canProceed}>
+          Proceed to Payment
         </Button>
       </div>
     </div>
@@ -952,11 +987,55 @@ const GiftVoucherTab = () => {
    VOUCHER LOOKUP — owner tool
 =================================================================== */
 const VoucherLookup = () => {
-  const [code,      setCode]      = useState('');
-  const [loading,   setLoading]   = useState(false);
-  const [result,    setResult]    = useState(null);
-  const [redeeming, setRedeeming] = useState(false);
-  const [redeemed,  setRedeemed]  = useState(false);
+  const [code,         setCode]         = useState('');
+  const [loading,      setLoading]      = useState(false);
+  const [result,       setResult]       = useState(null);
+  const [redeeming,    setRedeeming]    = useState(false);
+  const [redeemed,     setRedeemed]     = useState(false);
+
+  const [pendingList,  setPendingList]  = useState([]);
+  const [pendingLoad,  setPendingLoad]  = useState(true);
+  const [approvingIdx, setApprovingIdx] = useState(null);
+
+  useEffect(() => {
+    const load = async () => {
+      setPendingLoad(true);
+      try {
+        const res  = await fetch(`${SHEETS_API_URL}?pending=true`);
+        const data = await res.json();
+        setPendingList(Array.isArray(data.pending) ? data.pending : []);
+      } catch (_) {
+        setPendingList([]);
+      }
+      setPendingLoad(false);
+    };
+    load();
+  }, []);
+
+  const approvePending = async (row, idx) => {
+    setApprovingIdx(idx);
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const seg   = () => Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    const code  = `NBJ-${seg()}-${seg()}`;
+    try {
+      await fetch(SHEETS_API_URL, {
+        method: 'POST', mode: 'no-cors',
+        body: JSON.stringify({
+          type:             'approve_voucher',
+          voucher_code:     code,
+          recipient_name:   row.recipient_name,
+          recipient_email:  row.recipient_email,
+          sender_name:      row.sender_name,
+          voucher_amount:   row.voucher_amount,
+          personal_message: row.personal_message,
+          payment_ref:      row.payment_ref,
+          row_index:        row.row_index,
+        }),
+      });
+      setPendingList(list => list.filter((_, i) => i !== idx));
+    } catch (_) {}
+    setApprovingIdx(null);
+  };
 
   const check = async () => {
     if (!code.trim()) return;
@@ -987,18 +1066,75 @@ const VoucherLookup = () => {
   const isActive   = result?.found && !redeemed && result.status === 'Active';
   const isRedeemed = result?.found && (redeemed  || result.status === 'Redeemed');
 
-  const rowStyle = { display:'flex', justifyContent:'space-between', alignItems:'baseline', padding:'8px 0', borderBottom:'1px solid var(--hairline)' };
-  const lblStyle = { fontFamily:'var(--font-sans)', fontSize:9, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'var(--fg-muted)', flexShrink:0, marginRight:16 };
-  const valStyle = { fontFamily:'var(--font-sans)', fontSize:13, color:'var(--brand)', textAlign:'right' };
+  const rowStyle  = { display:'flex', justifyContent:'space-between', alignItems:'baseline', padding:'8px 0', borderBottom:'1px solid var(--hairline)' };
+  const lblStyle  = { fontFamily:'var(--font-sans)', fontSize:9, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'var(--fg-muted)', flexShrink:0, marginRight:16 };
+  const valStyle  = { fontFamily:'var(--font-sans)', fontSize:13, color:'var(--brand)', textAlign:'right' };
 
   return (
-    <div style={{ maxWidth:480, margin:'0 auto', padding:'56px 20px 96px' }}>
+    <div style={{ maxWidth:520, margin:'0 auto', padding:'56px 20px 96px' }}>
       <Eyebrow style={{ marginBottom:12 }}>Owner</Eyebrow>
       <h1 style={{ fontFamily:'var(--font-display)', fontSize:'clamp(32px,5vw,56px)', fontWeight:400, color:'var(--brand)', letterSpacing:'0.04em', textTransform:'uppercase', margin:'0 0 32px', lineHeight:1 }}>
         Voucher Lookup
       </h1>
 
-      {/* Code input */}
+      {/* ---- Pending Approvals ---- */}
+      <div style={{ marginBottom:40 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:16 }}>
+          <Eyebrow style={{ margin:0 }}>Pending Approvals</Eyebrow>
+          {pendingList.length > 0 && (
+            <span style={{ fontFamily:'var(--font-sans)', fontSize:9, fontWeight:700, letterSpacing:'0.12em', background:'#E8174A', color:'#fff', borderRadius:99, padding:'2px 8px' }}>
+              {pendingList.length}
+            </span>
+          )}
+        </div>
+
+        {pendingLoad && (
+          <p style={{ fontFamily:'var(--font-sans)', fontSize:11, fontStyle:'italic', color:'var(--fg-muted)', margin:0 }}>Loading…</p>
+        )}
+
+        {!pendingLoad && pendingList.length === 0 && (
+          <p style={{ fontFamily:'var(--font-sans)', fontSize:11, fontStyle:'italic', color:'var(--fg-muted)', margin:0 }}>No pending vouchers.</p>
+        )}
+
+        {!pendingLoad && pendingList.map((row, idx) => (
+          <div key={idx} style={{ border:'1px solid var(--brand)', padding:'18px 20px', marginBottom:12 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:12 }}>
+              <div>
+                <div style={{ fontFamily:'var(--font-sans)', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--brand)', marginBottom:2 }}>
+                  {row.recipient_name}
+                </div>
+                <div style={{ fontFamily:'var(--font-sans)', fontSize:11, color:'var(--fg-muted)' }}>
+                  {row.recipient_email}
+                </div>
+              </div>
+              <div style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:400, color:'var(--brand)', letterSpacing:'0.04em', flexShrink:0, marginLeft:12 }}>
+                {row.voucher_amount}
+              </div>
+            </div>
+            <div style={{ borderTop:'1px solid var(--hairline)', paddingTop:10, marginBottom:12 }}>
+              {[
+                ['From',    row.sender_name],
+                ['GCash Ref', row.payment_ref],
+                ['Submitted', row.submitted_at],
+                ...(row.personal_message && row.personal_message !== '—' ? [['Message', row.personal_message]] : []),
+              ].map(([label, value]) => (
+                <div key={label} style={{ display:'flex', justifyContent:'space-between', padding:'4px 0', gap:12 }}>
+                  <span style={lblStyle}>{label}</span>
+                  <span style={{ fontFamily:'var(--font-sans)', fontSize:12, color:'var(--brand)', textAlign:'right', wordBreak:'break-all' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+            <Button variant="filled" size="md" onClick={() => approvePending(row, idx)} disabled={approvingIdx === idx}>
+              {approvingIdx === idx ? 'Approving…' : 'Approve & Send Voucher'}
+            </Button>
+          </div>
+        ))}
+      </div>
+
+      <hr style={{ border:'none', borderTop:'1px solid var(--hairline)', marginBottom:32 }} />
+
+      {/* ---- Code lookup ---- */}
+      <Eyebrow style={{ marginBottom:12 }}>Look up a voucher</Eyebrow>
       <div style={{ display:'flex', gap:8, marginBottom:28 }}>
         <Input
           value={code}
@@ -1024,7 +1160,6 @@ const VoucherLookup = () => {
       {/* Found */}
       {result?.found && (
         <div style={{ border:'1px solid var(--brand)', padding:'24px 28px' }}>
-          {/* Header row */}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
             <span style={{ fontFamily:'var(--font-sans)', fontSize:9, fontWeight:700, letterSpacing:'0.18em', textTransform:'uppercase', color:'var(--brand)' }}>
               Voucher Found
@@ -1040,7 +1175,6 @@ const VoucherLookup = () => {
             </span>
           </div>
 
-          {/* Details */}
           <div style={{ marginBottom:20 }}>
             {[
               ['Code',         result.code],
@@ -1058,7 +1192,6 @@ const VoucherLookup = () => {
             ))}
           </div>
 
-          {/* Actions */}
           {isActive && (
             <Button variant="filled" onClick={markRedeemed} disabled={redeeming}>
               {redeeming ? 'Saving…' : 'Mark as Redeemed'}
