@@ -655,6 +655,22 @@ const Footer = ({ onBook, onNavigate }) => {
             <li style={{ fontFamily: "var(--font-sans)", fontSize: 12, color: "var(--fg-muted)" }}>
               +63 9929262792
             </li>
+            <li>
+              <a
+                href="mailto:nailsbyjano@gmail.com"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  color: "var(--fg-muted)",
+                  textDecoration: "none",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 12,
+                }}
+              >
+                nailsbyjano@gmail.com
+              </a>
+            </li>
           </ul>
         </div>
       </div>
