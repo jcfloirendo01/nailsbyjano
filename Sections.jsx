@@ -501,7 +501,9 @@ const Gallery = () => {
           }}>
             From the studio.
           </h2>
-          <Button variant="ghost" size="sm">See all on Instagram</Button>
+          <a href="https://www.instagram.com/nailsbyjano.est2024/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <Button variant="ghost" size="sm">See all on Instagram</Button>
+          </a>
         </div>
 
         {isMobile ? (
