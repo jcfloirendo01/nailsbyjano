@@ -555,7 +555,9 @@ const AboutPage = () => {
           gap: isMobile ? 32 : 48,
           alignItems: "start",
         }}>
-          <NailPhoto index={0} aspect={isMobile ? "16/9" : "4/5"} />
+          <div className="nail-photo-wrap" style={{ aspectRatio: isMobile ? "16/9" : "4/5", overflow: "hidden", background: "#f5f5f5", flexShrink: 0 }}>
+            <img src="assets/about/700087434_18090888488248525_2178887549007375233_n.jpg" alt="Nails by Jano" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          </div>
           <div style={{ paddingTop: isMobile ? 0 : 40 }}>
             <Eyebrow style={{ marginBottom: 16 }}>About</Eyebrow>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, lineHeight: 1.75, color: "var(--fg-muted)", margin: "0 0 20px" }}>
