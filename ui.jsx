@@ -43,18 +43,18 @@ const useNailCursor = () => {
     if (!el || !img || !window.gsap) return;
     img.style.display = "block";
     img.onload = () => {
-      window.gsap.to(el, { opacity: 1, scale: 1, duration: 0.4, ease: "power3.out" });
+      window.gsap.to(el, { opacity: 1, scale: 1, duration: 0.15, ease: "power3.out" });
     };
     img.onerror = () => {
       img.style.display = "none";
-      window.gsap.to(el, { opacity: 0, duration: 0.2 });
+      window.gsap.to(el, { opacity: 0, duration: 0.1 });
     };
     img.src = photoSrc;
   };
   const hide = () => {
     const el = document.getElementById("nail-cursor");
     if (!el || !window.gsap) return;
-    window.gsap.to(el, { opacity: 0, scale: 0.92, duration: 0.3, ease: "power2.in" });
+    window.gsap.to(el, { opacity: 0, scale: 0.92, duration: 0.12, ease: "power2.in" });
   };
   const move = (e) => {
     const el = document.getElementById("nail-cursor");
@@ -62,7 +62,7 @@ const useNailCursor = () => {
     window.gsap.to(el, {
       x: e.clientX + 24,
       y: e.clientY - 120,
-      duration: 0.55,
+      duration: 0.2,
       ease: "power3.out",
     });
   };
