@@ -667,7 +667,7 @@ const Footer = ({ onBook, onNavigate }) => {
 
         {[
           { label: "Studio", items: ["831-A Fullon St. Dagupan Tondo, Manila", "By appointment only", "GCash / Cash only"] },
-          { label: "Hours",  items: ["Mon – Sat · by appt", "Sun · closed", "DM to schedule"] },
+          { label: "Hours",  items: ["Daily · 9:00 AM – 9:00 PM", "By appointment only"] },
         ].map(col => (
           <div key={col.label}>
             <Eyebrow style={{ marginBottom: 12 }}>{col.label}</Eyebrow>
