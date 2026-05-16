@@ -880,7 +880,7 @@ const GiftVoucherTab = () => {
       <div style={{ textAlign:"center", marginBottom:24 }}>
         <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:12 }}>Scan to Pay via GCash</div>
         <img
-          src="assets/qr/gcash-qr.jpg"
+          src="assets/qr/8356bc25-12c8-465e-b2aa-03058c397a59 1.jpg"
           alt="GCash QR Code"
           style={{ width:"100%", maxWidth:220, display:"block", margin:"0 auto", border:"1px solid var(--hairline)" }}
         />
