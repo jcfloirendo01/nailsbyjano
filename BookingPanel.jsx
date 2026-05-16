@@ -882,8 +882,8 @@ const GiftVoucherTab = () => {
       </div>
 
       {/* QR Code */}
-      <div style={{ textAlign:"center", marginBottom:24 }}>
-        <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:12 }}>Scan to Pay via GCash</div>
+      <div style={{ textAlign:"center", marginBottom:16 }}>
+        <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:12 }}>Option 1 — Scan QR Code</div>
         <img
           src="assets/qr/8356bc25-12c8-465e-b2aa-03058c397a59 1.jpg"
           alt="GCash QR Code"
@@ -891,6 +891,19 @@ const GiftVoucherTab = () => {
         />
         <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"var(--fg-muted)", margin:"10px 0 0", fontStyle:"italic" }}>
           Open GCash → Scan QR → Pay {displayAmount}
+        </p>
+      </div>
+
+      {/* GCash number fallback */}
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <div style={{ fontFamily:"var(--font-sans)", fontSize:9, fontWeight:700, letterSpacing:"0.2em", textTransform:"uppercase", color:"var(--fg-muted)", marginBottom:10 }}>Option 2 — Send to GCash Number</div>
+        <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"#fdf0f4", border:"1px solid var(--brand)", padding:"12px 20px" }}>
+          <span style={{ fontFamily:"var(--font-display)", fontSize:22, fontWeight:400, color:"var(--brand)", letterSpacing:"0.06em" }}>
+            0992 926 2792
+          </span>
+        </div>
+        <p style={{ fontFamily:"var(--font-sans)", fontSize:11, color:"var(--fg-muted)", margin:"8px 0 0", fontStyle:"italic" }}>
+          Open GCash → Send Money → enter number above → Pay {displayAmount}
         </p>
       </div>
 
