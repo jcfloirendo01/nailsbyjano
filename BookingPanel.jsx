@@ -813,8 +813,12 @@ const GiftVoucherTab = () => {
     ? (customAmount ? `₱${customAmount}` : "₱—")
     : amount;
 
-  const canProceed = !!recipientName.trim() && !!recipientEmail.trim() && !!senderName.trim() &&
+  const [vTouched, setVTouched] = useState(false);
+
+  const recipientEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail.trim());
+  const canProceed = !!recipientName.trim() && recipientEmailValid && !!senderName.trim() &&
     (amount !== "custom" || !!customAmount);
+  const vErrStyle = { fontFamily:"var(--font-sans)", fontSize:11, color:"#c0392b", marginTop:4, fontStyle:"italic" };
 
   const handleSubmitPending = async () => {
     setSubmitting(true);
@@ -840,6 +844,7 @@ const GiftVoucherTab = () => {
   const reset = () => {
     setStep(0); setAmount("₱500"); setCustomAmount(""); setRecipientName("");
     setRecipientEmail(""); setSenderName(""); setMessage(""); setRefNumber("");
+    setVTouched(false);
   };
 
   /* ── Step 2: pending confirmation ── */
@@ -954,14 +959,17 @@ const GiftVoucherTab = () => {
         <div style={{ display:"grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap:14, marginBottom:14 }}>
           <Field label="Recipient name *">
             <Input value={recipientName} onChange={e => setRecipientName(e.target.value)} />
+            {vTouched && !recipientName.trim() && <span style={vErrStyle}>Required.</span>}
           </Field>
           <Field label="Recipient email *">
             <Input type="email" value={recipientEmail} onChange={e => setRecipientEmail(e.target.value)} />
+            {vTouched && !recipientEmailValid && <span style={vErrStyle}>{!recipientEmail.trim() ? "Required." : "Enter a valid email address."}</span>}
           </Field>
         </div>
         <div style={{ marginBottom:14 }}>
           <Field label="From *">
             <Input value={senderName} onChange={e => setSenderName(e.target.value)} />
+            {vTouched && !senderName.trim() && <span style={vErrStyle}>Required.</span>}
           </Field>
         </div>
         <div style={{ marginBottom:24 }}>
@@ -975,7 +983,7 @@ const GiftVoucherTab = () => {
           </Field>
         </div>
 
-        <Button variant="filled" size="lg" onClick={() => setStep(1)} disabled={!canProceed}>
+        <Button variant="filled" size="lg" onClick={() => { setVTouched(true); if (canProceed) setStep(1); }}>
           Proceed to Payment
         </Button>
       </div>
